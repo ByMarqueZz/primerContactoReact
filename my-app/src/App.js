@@ -1,4 +1,5 @@
 import './App.css';
+import { useState, useEffect } from 'react';
 
 // 1.2
 // function App() {
@@ -99,23 +100,39 @@ import './App.css';
 //   );
 // }
 
-// 3
+// Ejemplo peticion api
 function App() {
-  const originalData = [ 'Mars', 'Venus', 'Jupiter', 'Earth', 'Saturn', 'Neptune' ];
-
-  const mappingFunction = (item, index) => {
-    // return something in JSX.
-    return <li key={index}>{item}</li>
-  };
-  
-  const htmlList = originalData.map(mappingFunction);
-  // the htmlList variable now contains a new array.
+  const [listaPokemon, setListaPokemons] = useState([]);
+  const [urlPokeApi, setUrlPokeApi] = useState('https://pokeapi.co/api/v2/pokemon?limit=8');
+  useEffect(() => {fetchPokemon();}, [])
+  function fetchPokemon() {
+    fetch('https://pokeapi.co/api/v2/pokemon?limit=8')
+    .then(response => response.json())
+    .then(data => {console.log(data);setListaPokemons(data.results)});
+  }
+  function cargaTodos() {
+    fetch(urlPokeApi)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      setUrlPokeApi(data.next);
+      setListaPokemons(listaPokemon.concat(data.results));
+    });
+  }
+  function cargarMas() {
+    cargaTodos();
+  }
   return (
-    <div>
+    <>
       <ul>
-        {htmlList}
+        {
+          listaPokemon.map( (pokemon, index) => 
+            <li key={index}>{pokemon.name}</li>
+          )
+        }
       </ul>
-    </div>
+      <button onClick={cargarMas}>Cargar más</button>
+    </>  
   );
 }
 
